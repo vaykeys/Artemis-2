@@ -1,0 +1,6 @@
+{
+  "name": "Artemis II Mission Portal",
+  "description": "An interactive, beautifully designed hub highlighting NASA's Artemis II mission crew, launch vehicle, trajectory, and detailed Q&A assistant.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
