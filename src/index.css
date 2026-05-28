@@ -8,6 +8,27 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
+/* Shimmer Animation for Skeleton Screens */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-skeleton {
+  background: linear-gradient(90deg, #161616 25%, #222222 37%, #161616 63%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+.theme-light .shimmer-skeleton {
+  background: linear-gradient(90deg, #e5e5e5 25%, #f5f5f5 37%, #e5e5e5 63%);
+  background-size: 200% 100%;
+}
+
 /* Custom styles for high-fidelity interactive elements */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
@@ -16,8 +37,11 @@
 .custom-scrollbar::-webkit-scrollbar-track {
   background: rgba(10, 10, 10, 0.4);
 }
+.theme-light .custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(240, 240, 240, 0.4);
+}
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(220, 38, 38, 0.2);
+  background: rgba(220, 38, 38, 0.25);
   border-radius: 2px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
@@ -27,8 +51,65 @@
 /* Artistic flair background elements */
 .art-grid-base {
   background-size: 40px 40px;
-  background-image: linear-gradient(to right, rgba(255,255,255,0.015) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-image: linear-gradient(to right, rgba(255,255,255,0.012) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255,255,255,0.012) 1px, transparent 1px);
 }
+
+.theme-light .art-grid-base {
+  background-image: linear-gradient(to right, rgba(0,0,0,0.018) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(0,0,0,0.018) 1px, transparent 1px);
+}
+
+/* Light theme general adaptations */
+.theme-light {
+  background-color: #f7f7f7 !important;
+  color: #1a1a1a !important;
+}
+
+.theme-light header, 
+.theme-light footer {
+  background-color: rgba(247, 247, 247, 0.9) !important;
+  border-color: #e5e5e5 !important;
+}
+
+.theme-light .bg-neutral-900 {
+  background-color: #ffffff !important;
+  border-color: #e5e5e5 !important;
+}
+
+.theme-light .bg-neutral-950 {
+  background-color: #f0f0f0 !important;
+  border-color: #e5e5e5 !important;
+}
+
+.theme-light .text-white {
+  color: #0d0d0d !important;
+}
+
+.theme-light .text-neutral-400 {
+  color: #4a4a4a !important;
+}
+
+.theme-light .text-neutral-450,
+.theme-light .text-neutral-500 {
+  color: #666666 !important;
+}
+
+.theme-light .border-neutral-800,
+.theme-light .border-neutral-850,
+.theme-light .border-neutral-900 {
+  border-color: #e5e5e5 !important;
+}
+
+.theme-light .text-neutral-100 {
+  color: #1a1a1a !important;
+}
+
+.theme-light #specifications-panel,
+.theme-light #trajectory-detail-panel {
+  background-color: #ffffff !important;
+  border-color: #e5e5e5 !important;
+}
+
 
 

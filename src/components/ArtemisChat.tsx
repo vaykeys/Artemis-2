@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { ChatMessage } from "../types.ts";
-import { MessageSquare, Send, Sparkles, AlertTriangle, Play, RefreshCw, User, Database } from "lucide-react";
+import { MessageSquare, Send, Sparkles, AlertTriangle, Play, RefreshCw, User, Database, Save, Check } from "lucide-react";
 
 export default function ArtemisChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -14,6 +14,34 @@ export default function ArtemisChat() {
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  
+  // Track IDs of messages already logged to Cockpit logs
+  const [savedMessageIds, setSavedMessageIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const loggedIds = localStorage.getItem("artemis_saved_terminal_log_ids") || "[]";
+      setSavedMessageIds(JSON.parse(loggedIds));
+    } catch (_) {}
+  }, []);
+
+  const handleSaveToLogs = (text: string, id: string) => {
+    try {
+      const logsStr = localStorage.getItem("artemis_saved_terminal_logs") || "[]";
+      const logs = JSON.parse(logsStr);
+      if (!logs.includes(text)) {
+        logs.push(text);
+        localStorage.setItem("artemis_saved_terminal_logs", JSON.stringify(logs));
+        
+        const idsStr = localStorage.getItem("artemis_saved_terminal_log_ids") || "[]";
+        const ids = JSON.parse(idsStr);
+        ids.push(id);
+        localStorage.setItem("artemis_saved_terminal_log_ids", JSON.stringify(ids));
+        
+        setSavedMessageIds(ids);
+      }
+    } catch (_) {}
+  };
 
   const sampleQuestions = [
     "Who is pilot Victor Glover?",
@@ -170,7 +198,7 @@ export default function ArtemisChat() {
 
                 {/* Bubble */}
                 <div
-                  className={`p-3.5 text-sm leading-relaxed ${
+                  className={`p-3.5 text-sm leading-relaxed relative ${
                     isModel
                       ? msg.error
                         ? "bg-amber-950/20 border border-amber-500/10 text-amber-200/90"
@@ -180,9 +208,32 @@ export default function ArtemisChat() {
                 >
                   <p className="whitespace-pre-line font-mono text-xs text-neutral-300">{msg.text}</p>
                   
-                  <span className="text-[8px] font-mono text-neutral-550 mt-2 block text-right">
-                    {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                  </span>
+                  <div className="flex items-center justify-between mt-3 pt-2 border-t border-neutral-800/20">
+                    <div>
+                      {isModel && !msg.error && msg.id !== "initial" && (
+                        <button
+                          type="button"
+                          onClick={() => handleSaveToLogs(msg.text, msg.id)}
+                          className="text-[9px] font-mono font-bold text-red-500 hover:text-red-400 flex items-center gap-1 cursor-pointer transition-colors"
+                        >
+                          {savedMessageIds.includes(msg.id) ? (
+                            <>
+                              <Check className="w-3 h-3 text-red-500" />
+                              LOGGED IN COCKPIT
+                            </>
+                          ) : (
+                            <>
+                              <Save className="w-3 h-3 text-red-500" />
+                              LOG TO COCKPIT
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                    <span className="text-[8px] font-mono text-neutral-550">
+                      {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                    </span>
+                  </div>
                 </div>
               </div>
             );

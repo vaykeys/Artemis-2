@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global Safety Net (default-deny catch-all)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validation helper for UserProfile (Pillar 2)
+    function isValidUserProfile(data) {
+      return data.username is string && data.username.size() > 0 && data.username.size() <= 100
+        && data.selectedRole is string && data.selectedRole.size() > 0 && data.selectedRole.size() <= 50
+        && data.items is list && data.items.size() <= 20
+        && data.savedLogs is list && data.savedLogs.size() <= 100
+        && data.userId is string && data.userId == request.auth.uid
+        && data.updatedAt is timestamp;
+    }
+
+    // Rule enforcement for profiles (Pillar 3 & 4)
+    match /profiles/{profileId} {
+      allow get: if isSignedIn() && request.auth.uid == profileId;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      
+      allow create: if isEmailVerified() && isValidId(profileId) && request.auth.uid == profileId && isValidUserProfile(incoming()) && incoming().updatedAt == request.time;
+      allow update: if isEmailVerified() && isValidId(profileId) && request.auth.uid == profileId && isValidUserProfile(incoming()) && isValidUserProfile(existing()) && incoming().updatedAt == request.time;
+      allow delete: if isEmailVerified() && request.auth.uid == profileId;
+    }
+  }
+}

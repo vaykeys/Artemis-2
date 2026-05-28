@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Pilots and crew authorized to interact with the flight console",
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string",
+          "description": "Unique display name of the pilot"
+        },
+        "selectedRole": {
+          "type": "string",
+          "description": "Assigned cadre role (commander, pilot, spec)"
+        },
+        "items": {
+          "type": "array",
+          "description": "Checklist of staging checkpoints and completion state"
+        },
+        "savedLogs": {
+          "type": "array",
+          "description": "Logged CapCom messages saved locally to cockpit"
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID linked to the authenticated user"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp of the last sync run"
+        }
+      },
+      "required": ["username", "selectedRole", "items", "savedLogs", "userId", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/profiles/{profileId}": {
+      "schema": "UserProfile",
+      "description": "Store personal cabins and checklist states associated with authenticated UIDs"
+    }
+  }
+}

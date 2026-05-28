@@ -3,6 +3,8 @@ import CrewSection from "./components/CrewSection.tsx";
 import SpacecraftSection from "./components/SpacecraftSection.tsx";
 import MissionTrajectory from "./components/MissionTrajectory.tsx";
 import ArtemisChat from "./components/ArtemisChat.tsx";
+import NasaExplorer from "./components/NasaExplorer.tsx";
+import PersonalCabin from "./components/PersonalCabin.tsx";
 import { 
   Rocket, 
   Map, 
@@ -11,10 +13,15 @@ import {
   ChevronDown, 
   Clock, 
   Moon, 
+  Sun,
   Info,
   Calendar,
   Compass,
-  ArrowUpRight
+  ArrowUpRight,
+  Sliders,
+  Database,
+  Menu,
+  X
 } from "lucide-react";
 
 export default function App() {
@@ -23,6 +30,19 @@ export default function App() {
     hours: 0,
     minutes: 0,
     seconds: 0,
+  });
+
+  // Mobile Menu Active State
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Macro loading preloader sequence states
+  const [isPreloading, setIsPreloading] = useState(true);
+  const [preloadLogs, setPreloadLogs] = useState<string[]>([]);
+  const [preloadProgress, setPreloadProgress] = useState(0);
+
+  // Theme Settings
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("artemis_active_theme") || "dark";
   });
 
   // Calculate live countdown to target Artemis II launch (estimated around November 25, 2026)
@@ -48,15 +68,110 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
+  // Preloader logging timer loop
+  useEffect(() => {
+    const logs = [
+      "DIAGNOSTIC TELEMETRY MATRIX INITIATING...",
+      "TUNING SOLID ROCKET BOOSTER NOZZLES [SRB-L/R] // STATUS: GO",
+      "INTEGRATING VERCEL EDGE CHANNELS...",
+      "ORION CAPSULE HELIUM VALVE VERIFICATION // ACTIVE...",
+      "NASA LIVE DATASET PORT AR-45 HANDSHAKE // CONNECTED",
+      "ESTABLISHING CRYOGENIC TEMPERATURE LEVEL CHECKS... COMPLETE",
+      "CONSTRUCTING SECURE COCKPIT USER MEMORY POOLS..."
+    ];
+
+    let logIdx = 0;
+    const logInterval = setInterval(() => {
+      if (logIdx < logs.length) {
+        setPreloadLogs(prev => [...prev, logs[logIdx]]);
+        logIdx++;
+      }
+    }, 200);
+
+    const progressInterval = setInterval(() => {
+      setPreloadProgress(p => {
+        if (p >= 100) {
+          clearInterval(progressInterval);
+          setTimeout(() => setIsPreloading(false), 300);
+          return 100;
+        }
+        return p + 4;
+      });
+    }, 60);
+
+    return () => {
+      clearInterval(logInterval);
+      clearInterval(progressInterval);
+    };
+  }, []);
+
+  const toggleTheme = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    localStorage.setItem("artemis_active_theme", next);
+  };
+
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
+      setIsMobileMenuOpen(false);
     }
   };
 
+  if (isPreloading) {
+    /* HIGH-FIDELITY PRELOADER TELEMETRY TERMINAL */
+    return (
+      <div className="fixed inset-0 bg-[#070707] z-50 flex flex-col justify-between p-8 md:p-12 font-mono">
+        {/* Background decorative grid */}
+        <div className="absolute inset-0 art-grid-base opacity-10 pointer-events-none" />
+        
+        {/* Top telemetry indicators */}
+        <div className="flex justify-between items-center text-[10px] text-neutral-500 border-b border-neutral-850 pb-4 z-10">
+          <span>SYSTEM FEED CODENAME: ART-02-LUNAR</span>
+          <span className="animate-pulse text-red-500 font-bold">BOOTING SYSTEM LUNAR CONSOLE</span>
+        </div>
+
+        {/* Central Terminal Scrolling Logs */}
+        <div className="max-w-2xl mx-auto w-full flex-grow flex flex-col justify-center space-y-6 z-10">
+          <div className="text-left space-y-4">
+            <h2 className="text-2xl md:text-3xl font-display font-black text-white uppercase tracking-tight leading-none">
+              ARTEMIS CORE ORBITAL VM
+            </h2>
+            <div className="w-full bg-neutral-900 h-1 border border-neutral-800 overflow-hidden relative">
+              <div 
+                className="bg-red-650 h-full transition-all duration-100" 
+                style={{ width: `${preloadProgress}%` }}
+              />
+            </div>
+            <div className="flex justify-between text-[10px] text-neutral-400 font-bold pt-1">
+              <span>LOADING SYSTEMS ASSEMBLY CHECKSHAKES</span>
+              <span>{preloadProgress}%</span>
+            </div>
+          </div>
+
+          <div className="bg-[#0c0c0c] border border-neutral-850 p-6 h-56 font-mono text-xs text-neutral-400 overflow-y-auto space-y-2 custom-scrollbar text-left">
+            {preloadLogs.map((log, idx) => (
+              <div key={idx} className="flex gap-2">
+                <span className="text-red-550 select-none">//</span>
+                <span className="text-neutral-100">{log}</span>
+              </div>
+            ))}
+            <div className="w-2 h-4 bg-white animate-pulse inline-block" />
+          </div>
+        </div>
+
+        {/* Bottom copyright/legal */}
+        <div className="flex flex-col md:flex-row justify-between text-[9px] text-neutral-600 border-t border-neutral-850 pt-4 z-10 uppercase font-semibold">
+          <span>CRAFTED ACCORDING TO AEROSPACE DESIGN PROTOCOLS</span>
+          <span>FLIGHT VERIFICATION ACTIVE // © 2026 SPACE COMMAND</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 font-sans selection:bg-red-650 selection:text-white flex flex-col antialiased relative overflow-hidden art-grid-base">
+    <div className={`min-h-screen transition-colors duration-300 bg-neutral-950 text-neutral-100 font-sans selection:bg-red-650 selection:text-white flex flex-col antialiased relative overflow-hidden art-grid-base ${theme === "light" ? "theme-light" : ""}`}>
       
       {/* Background Graphic Elements - Absolute Positions */}
       <div className="absolute -top-24 -right-24 w-96 h-96 bg-red-600/10 rounded-full opacity-30 blur-3xl pointer-events-none z-0" />
@@ -64,7 +179,7 @@ export default function App() {
       <div className="absolute top-[650px] right-1/4 w-[400px] h-px bg-neutral-900 rotate-12 pointer-events-none z-0" />
       
       {/* Decorative Ghost Background Typography */}
-      <div className="absolute top-96 -left-16 rotate-90 text-[140px] font-black text-white/[0.02] pointer-events-none uppercase tracking-tighter select-none z-0">
+      <div className="absolute top-[800px] -left-16 rotate-90 text-[140px] font-black text-white/[0.02] pointer-events-none uppercase tracking-tighter select-none z-0">
         ORION
       </div>
 
@@ -76,8 +191,8 @@ export default function App() {
               <div className="w-3.5 h-3.5 bg-red-600 -rotate-45" />
             </div>
             <div>
-              <span className="text-xs sm:text-sm font-display font-black tracking-[0.3em] text-white uppercase block">
-                NATIONAL AERONAUTICS AND SPACE ADMINISTRATION
+              <span className="text-[10px] sm:text-xs font-display font-black tracking-[0.25em] text-white uppercase block leading-tight">
+                NASA SPACE OPERATIONS
               </span>
               <span className="text-[9px] font-mono tracking-wider text-red-500 block">
                 ARTEMIS II // FLIGHT PORTAL
@@ -85,7 +200,13 @@ export default function App() {
             </div>
           </div>
 
-          <nav className="hidden lg:flex items-center gap-8 text-[10px] font-mono uppercase tracking-widest">
+          <nav className="hidden lg:flex items-center gap-7 text-[10px] font-mono uppercase tracking-widest leading-none">
+            <button 
+              onClick={() => scrollToSection("personalized-dashboard")}
+              className="text-neutral-450 hover:text-red-500 font-bold transition-all focus:outline-none cursor-pointer"
+            >
+              CREW COCKPIT
+            </button>
             <button 
               onClick={() => scrollToSection("crew-section")}
               className="text-neutral-450 hover:text-red-500 font-bold transition-all focus:outline-none cursor-pointer"
@@ -105,6 +226,12 @@ export default function App() {
               TRAJECTORY
             </button>
             <button 
+              onClick={() => scrollToSection("nasa-telemetry")}
+              className="text-neutral-450 hover:text-red-500 font-bold transition-all focus:outline-none cursor-pointer"
+            >
+              NASA ARCHIVE
+            </button>
+            <button 
               onClick={() => scrollToSection("artemis-chat-section")}
               className="text-white hover:text-red-500 font-extrabold bg-neutral-900 hover:bg-neutral-850 border border-neutral-800 px-4 py-2 hover:border-red-655 transition-all focus:outline-none cursor-pointer"
             >
@@ -112,11 +239,72 @@ export default function App() {
             </button>
           </nav>
 
-          <div className="flex items-center gap-2 bg-neutral-900 text-neutral-300 border border-neutral-800 px-3 py-1 text-[9px] font-mono tracking-wider">
-            <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
-            SYSTEM STAGED
+          <div className="flex items-center gap-2">
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 bg-neutral-900 border border-neutral-850 hover:border-red-500 text-neutral-300 hover:text-white transition-colors cursor-pointer focus:outline-none flex items-center justify-center h-8 w-8"
+              title="Toggle Light Theme Blueprint"
+            >
+              {theme === "dark" ? <Sun className="w-4 h-4 text-red-500" /> : <Moon className="w-4 h-4 text-red-500" />}
+            </button>
+
+            {/* Mobile Menu Icon Toggle */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden p-2 bg-neutral-900 border border-neutral-850 text-neutral-350 hover:text-white transition-colors cursor-pointer flex items-center justify-center h-8 w-8"
+            >
+              {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            </button>
+
+            <div className="hidden sm:flex items-center gap-2 bg-neutral-900 text-neutral-300 border border-neutral-800 px-3 py-1.5 text-[9px] font-mono tracking-wider h-8">
+              <span className="w-2 h-2 bg-red-600 animate-pulse" />
+              SYSTEM ACTIVE
+            </div>
           </div>
         </div>
+
+        {/* Collapsible Mobile Drawer Navigation Menu */}
+        {isMobileMenuOpen && (
+          <div className="lg:hidden bg-neutral-950 border-b border-neutral-900 p-6 flex flex-col gap-4 font-mono text-[11px] tracking-widest uppercase text-left">
+            <button 
+              onClick={() => scrollToSection("personalized-dashboard")}
+              className="py-2.5 text-neutral-400 hover:text-red-500 font-bold text-left focus:outline-none cursor-pointer"
+            >
+              CREW COCKPIT
+            </button>
+            <button 
+              onClick={() => scrollToSection("crew-section")}
+              className="py-2.5 text-neutral-400 hover:text-red-500 font-bold text-left focus:outline-none cursor-pointer"
+            >
+              MEMBERS
+            </button>
+            <button 
+              onClick={() => scrollToSection("spacecraft-section")}
+              className="py-2.5 text-neutral-400 hover:text-red-500 font-bold text-left focus:outline-none cursor-pointer"
+            >
+              CRAFT SYSTEMS
+            </button>
+            <button 
+              onClick={() => scrollToSection("trajectory-section")}
+              className="py-2.5 text-neutral-400 hover:text-red-500 font-bold text-left focus:outline-none cursor-pointer"
+            >
+              TRAJECTORY
+            </button>
+            <button 
+              onClick={() => scrollToSection("nasa-telemetry")}
+              className="py-2.5 text-neutral-400 hover:text-red-500 font-bold text-left focus:outline-none cursor-pointer"
+            >
+              NASA ARCHIVE
+            </button>
+            <button 
+              onClick={() => scrollToSection("artemis-chat-section")}
+              className="py-3 px-4 bg-neutral-900 text-red-500 border border-red-900/40 hover:bg-neutral-850 font-bold text-center focus:outline-none cursor-pointer"
+            >
+              CAPCOM PORT CONSOLE
+            </button>
+          </div>
+        )}
       </header>
 
       {/* Hero Section */}
@@ -288,12 +476,18 @@ export default function App() {
       {/* Section Divider Block */}
       <div className="w-full bg-neutral-950">
         
+        {/* Personal Crew Cabin Dashboard */}
+        <PersonalCabin />
+        
         {/* Sub-sections */}
         <CrewSection />
         
         <SpacecraftSection />
         
         <MissionTrajectory />
+
+        {/* Real NASA live database Explorer */}
+        <NasaExplorer />
         
         <ArtemisChat />
 
