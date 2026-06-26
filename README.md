@@ -1,4 +1,4 @@
-<div align="center">
+
 
    ![image alt](https://github.com/vaykeys/Artemis-2/blob/78e5e71ce0a11703cd4ba84a55d8a00ac9565ff1/890.PNG)
 
