@@ -1,5 +1,5 @@
 <div align="center">
-<img width="1200" height="475" alt="GHBanner" src="C:\Users\Sam Quansah\Pictures\Screenshots" />
+<img width="1200" height="475" alt="GHBanner" src="(https://github.com/vaykeys/Artemis-2/blob/78e5e71ce0a11703cd4ba84a55d8a00ac9565ff1/890.PNG)" />
 </div>
 
 # Run and deploy your AI Studio app
